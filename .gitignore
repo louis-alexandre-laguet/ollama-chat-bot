@@ -1,0 +1,8 @@
+# Ignore Visual Studio files
+.vs/*
+
+# Ignore pycache
+*__pycache__/
+
+# Ignore the project temporary folder to store documents
+src/resources/data

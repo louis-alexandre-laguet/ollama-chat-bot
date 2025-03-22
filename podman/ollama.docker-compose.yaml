@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  ollama:
+    image: quay.io/louis-alexandre_laguet/ollama
+    container_name: ollama-container
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - app-network
+
+volumes:
+  ollama-data:
+    name: ollama-data
+
+networks:
+  app-network:
+    external: false
+    driver: bridge
+    name: app-network

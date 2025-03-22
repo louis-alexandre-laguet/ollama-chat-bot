@@ -1,0 +1,145 @@
+title **Ollama Chatbot**
+
+actor user
+
+participantgroup #lightblue **app-container\n   -- (8000:8000)--**
+  materialdesignicons F0614 index.html
+  participant app.py
+  participant services.py
+  participant custom_logger.py
+  participant config_loader.py
+  materialdesignicons F1A7C config.yaml
+  participant text_extractor.py
+  participant text_vectorizer.py
+  participant database_manager.py
+  database documents.db
+  database vectors.faiss
+  participant document_indexer.py
+  participant document_retriever.py
+  participant response_generator.py
+end
+
+participantgroup #lightpink **ollama-container\n     --(11434:11434)--**
+  control ollama
+end
+
+
+ollama->ollama:ollama run //model//
+
+
+group #cccccc Config
+  app.py->services.py:Initialize Services
+  services.py->custom_logger.py:Get Logger
+  custom_logger.py-->services.py://Logger Instance//
+
+  services.py->config_loader.py:Load Configuration
+  config_loader.py->config.yaml:safe_load()
+  config.yaml-->config_loader.py://Config//
+  config_loader.py-->services.py://Config//
+
+  services.py->text_extractor.py:Initialize Text Extractor with Logger
+  services.py->text_vectorizer.py:Initialize Text Vectorizer with Logger
+
+  services.py->database_manager.py:Initialize Database Manager with Paths (sqlite3, FAISS)
+  database_manager.py->documents.db:**CREATE TABLE** documents
+  database_manager.py->documents.db:**CREATE TABLE** chunks
+  database_manager.py->vectors.faiss:Load/Create FAISS Index
+  services.py->document_indexer.py:Initialize Document Indexer with Text Extractor, Text Vectorizer, Database Manager
+  services.py->document_retriever.py:Initialize Document Retriever with Vectorizer, Database Manager
+  services.py->response_generator.py:Initialize Response Generator with Model, Master Prompt, Document Retriever
+  
+  services.py->app.py:Expose FastAPI App
+  app.py->index.html:Serve the main index HTML page
+end
+
+
+group #cccccc System Prompt
+  user->index.html:setSystemPrompt()
+  index.html->app.py:set_system_prompt_api( //system_prompt// )
+  app.py->response_generator.py:set_system_prompt( //system_prompt// )
+  response_generator.py->response_generator.py:SYSTEM_PROMPT = //system_prompt//
+  app.py-->index.html://status_code//
+end
+
+
+group #cccccc Generation when rag_enabled == False
+  user->index.html:generateResponse()
+  index.html->app.py:generate_response_api( //prompt// )
+  app.py->response_generator.py:generate_response( //prompt// )
+  response_generator.py->ollama:requests.post( http://OLLAMA_HOST:11434/api/generate, json=payload, stream=True )
+  ollama-->response_generator.py://response//
+  response_generator.py-->app.py://response//
+  app.py-->index.html://response//
+  index.html->index.html:print( //response// )
+end
+
+
+group #cccccc Document Collections
+  user->index.html:uploadDocuments()
+  index.html->app.py:upload_documents_api( //files// )
+  app.py->app.py:move //files// to a //temp_directory//
+  app.py->document_indexer.py:index_documents( //temp_directory// )
+  group #aaaaaa for [ os.walk( temp_directory ) ]
+    document_indexer.py->document_indexer.py:extract_text_from_file( //file_path//, //filename// )
+    document_indexer.py->text_extractor.py:extract_text( //file_path// )
+    text_extractor.py-->document_indexer.py://text//
+    document_indexer.py->database_manager.py:insert_document( //filename// )
+    database_manager.py->documents.db:**INSERT INTO** documents (//title//)
+    database_manager.py-->document_indexer.py://doc_id//
+    document_indexer.py->document_indexer.py:chunk_text( //text// )
+    group #dddddd for [ chunk in chunks ]
+      document_indexer.py->text_vectorizer.py:vectorize_chunks_with_context( //chunks//, window=1 )
+      text_vectorizer.py-->document_indexer.py://vectors//
+      document_indexer.py->database_manager.py:insert_chunk( //chunk//, //doc_id// )
+      database_manager.py->documents.db:**INSERT INTO** chunks (//document_id//, //chunk_text//)
+      database_manager.py-->document_indexer.py://chunk_id//
+      document_indexer.py->database_manager.py:add_vector_to_faiss( //chunk_id//, //vector// )
+      database_manager.py->vectors.faiss://index//.add_with_ids( //vector//, //chunk_id// )
+    end
+  end
+  app.py-->index.html://status_code//
+end
+
+
+group #cccccc Toggle RAG
+  user->index.html:toggleRAG()
+  index.html->app.py:toggle_rag_api( //enableRAG// )
+  app.py->services.py:Set RAG Enabled (//enableRAG//)
+  services.py->app.py:Update RAG Flag
+  app.py-->index.html://status_code//
+end
+
+
+group #cccccc Generation when rag_enabled == True
+  user->index.html:generateResponse()
+  index.html->app.py:generate_response_api( //prompt//, //top_n// )
+  app.py->response_generator.py:generate_response_with_retriever( //prompt//, //top_n// )
+  response_generator.py->document_retriever.py:retrieve_documents( //prompt//, //top_n//, //use_hybrid_search// )
+  
+  document_retriever.py->text_vectorizer.py:vectorize_text( //prompt// )
+  text_vectorizer.py-->document_retriever.py://prompt_vector//
+  
+  alt #aaaaaa Use Hybrid Search (use_hybrid_search=True)
+    document_retriever.py->document_retriever.py:hybrid_search( //prompt//, //prompt_vector//, //top_n * expansion_factor// )
+    document_retriever.py->database_manager.py:search_faiss( //prompt_vector//, //top_n * expansion_factor// )
+    database_manager.py-->document_retriever.py://faiss_results//
+
+    document_retriever.py->database_manager.py:search_sqlite( //prompt//, //top_n * expansion_factor// )
+    database_manager.py-->document_retriever.py://sqlite_results//
+  document_retriever.py->document_retriever.py:combine_and_rerank_results( //faiss_results//, //sqlite_results//, //prompt_vector//, //top_n// )
+  else Use FAISS Only (use_hybrid_search=False)
+    document_retriever.py->document_retriever.py:search_in_index( //prompt_vector//, //top_n * expansion_factor// )
+    document_retriever.py->database_manager.py:search_faiss( //prompt_vector//, //top_n * expansion_factor// )
+    database_manager.py-->document_retriever.py://faiss_results//
+    document_retriever.py->document_retriever.py:rerank_documents( //faiss_results//, //prompt_vector//, //top_n// )
+  end
+  
+  document_retriever.py-->response_generator.py://reranked_documents//
+  
+  response_generator.py->response_generator.py:generate_response( //augmented_prompt// )
+  response_generator.py->ollama:requests.post( http://OLLAMA_HOST:11434/api/generate, json=payload, stream=True )
+  ollama-->response_generator.py://response//
+  response_generator.py-->app.py://response//
+  app.py-->index.html://response//
+  index.html->index.html:print( //response// )
+end

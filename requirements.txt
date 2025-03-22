@@ -1,0 +1,26 @@
+# Data/AI/ML/NLP
+nltk
+numpy
+pandas
+faiss-cpu
+sentence-transformers
+
+# Document Parsing and Manipulation
+odfpy
+openpyxl
+pdfminer.six
+PyPDF2
+python-docx
+python-pptx
+striprtf
+beautifulsoup4
+markdown2
+
+# Web Framework
+aiohttp
+aiofiles
+fastapi
+requests
+uvicorn
+python-multipart
+pydantic

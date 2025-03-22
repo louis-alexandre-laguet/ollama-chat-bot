@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# ========================================
+# Script to run Ollama with Open-WebUI
+# ========================================
+
+# Start Ollama container
+echo "[ Starting Ollama ]"
+podman run -d --name ollama --replace --pull=always --restart=always \
+    -p 127.0.0.1:11434:11434 -v ollama:/root/.ollama --stop-signal=SIGKILL \
+    docker.io/ollama/ollama
+
+# Pull the llama3.2:3B model
+echo "[ Running llama3.2:3B model ]"
+podman exec -it ollama ollama run llama3.2
+
+# Start Open-WebUI container
+echo "[ Starting Open-WebUI ]"
+podman run -d --name open-webui --replace --pull=always --restart=always \
+    -p 127.0.0.1:3000:8080 --network=pasta:-T,11434 --add-host=ollama.local:127.0.0.1 \
+    -e OLLAMA_BASE_URL=http://ollama.local:11434 -v open-webui:/app/backend/data \
+    ghcr.io/open-webui/open-webui:main
+
+# Open the Open-WebUI web interface in the default web browser
+echo "[ Opening Open-WebUI web interface ]"
+xdg-open "http://localhost:3000" &
+
+# Wait for user input to shut down containers
+echo "Press any key to shut down Open-WebUI and Ollama..."
+read -r -n 1
+
+# Remove containers and volumes
+podman rm -f open-webui ollama
+podman volume rm -f open-webui ollama

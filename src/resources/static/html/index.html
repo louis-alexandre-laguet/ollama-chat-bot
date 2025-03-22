@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama Chatbot</title>
+    <script src="/static/js/script.js" defer></script>
+    <link rel="stylesheet" href="/static/css/general_layout.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="icon" href="/static/img/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+</head>
+<body class="dark-theme">
+<div id="main">
+    <div id="vertical-menu">
+        <div>
+            <h4 class="section-label">System Prompt</h4>
+            <div class="system-prompt-section">
+                <textarea id="system-prompt-input" placeholder="Enter system prompt here..."></textarea>
+                <button class="menu-button" onclick="setSystemPrompt()">Set System Prompt</button>
+            </div>
+        </div>
+
+        <div>
+            <div id="parameters-label-container">
+                <h4 id="parameters-label" class="section-label">Model Parameters</h4>
+                <img id="parameters-label-img" src="/static/img/up.svg" alt=""/>
+            </div>
+            <div class="parameters-section">
+                <div class="parameter-field">
+                    <div>
+                        <label for="num_ctx">Context Size</label>
+                        <span class="info-icon">
+                            <div class="tooltip">Sets the size of the context window used to generate the next token. Min: 1, Max: 4096.</div>
+                        </span>
+                    </div>
+                    <input type="number" id="num_ctx" min="1" max="4096" value="2048">
+                </div>
+                <div class="parameter-field">
+                    <div>
+                        <label for="temperature">Temperature</label>
+                        <span class="info-icon">
+                            <div class="tooltip">Adjusts the creativity of the model's responses. Min: 0, Max: 2.</div>
+                        </span>
+                    </div>
+                    <input type="number" id="temperature" step="0.1" min="0" max="2" value="0.8">
+                </div>
+                <div class="parameter-field">
+                    <div>
+                        <label for="repeat_last_n">Repeat Last N</label>
+                        <span class="info-icon">
+                            <div class="tooltip">Sets how far back the model looks to prevent repetition. Min: 1, Max: 1024.</div>
+                        </span>
+                    </div>
+                    <input type="number" id="repeat_last_n" min="1" max="1024" value="64">
+                </div>
+                <div class="parameter-field">
+                    <div>
+                        <label for="repeat_penalty">Repeat Penalty</label>
+                        <span class="info-icon">
+                            <div class="tooltip">Controls the penalty for repetitions. Min: 1, Max: 2.</div>
+                        </span>
+                    </div>
+                    <input type="number" id="repeat_penalty" step="0.1" min="1" max="2" value="1.1">
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h4 class="section-label">Document Collections</h4>
+            <div class="upload-section">
+                <label for="file-input" id="file-label">Choose Files</label>
+                <input type="file" id="file-input" multiple
+                       accept=".docx, .pptx, .pdf, .txt, .xlsx, .csv, .html, .md, .rtf, .odt">
+                <span id="file-count" class="file-count">No files selected</span>
+                <button class="menu-button" onclick="uploadDocuments()">Upload Documents</button>
+                <button id="clean-db" class="menu-button" onclick="cleanDatabase()">Clean Uploaded Documents</button>
+            </div>
+        </div>
+
+        <div>
+            <h4 class="section-label">Retrieval-Augmented Generation</h4>
+            <div class="checkbox-container">
+                <input type="checkbox" id="rag-toggle">
+                <label for="rag-toggle">Enable RAG</label>
+            </div>
+            <div class="rag-config" id="rag-config">
+                <div>
+                    <label for="num_ctx">Top N parameter</label>
+                    <span class="info-icon">
+                        <div class="tooltip">Sets the number of document chunks to retrieve. Min: 1, Max: 10.</div>
+                    </span>
+                </div>
+                <input type="number" id="doc-count" min="1" max="10" value="3">
+            </div>
+        </div>
+    </div>
+    <div id="main-container">
+        <div id="toggle-menu-container">
+            <img id="menu-icon" src="/static/img/menu.svg"/>
+        </div>
+        <div id="theme-toggle-container">
+            <button id="theme-toggle" onclick="toggleTheme()">
+                <img id="theme-icon" src="/static/img/moon.svg" alt=""/>
+            </button>
+        </div>
+        <div id="chat-container">
+            <div id="chat-box-container">
+                <div id="chat-box"></div>
+            </div>
+            <div id="bot-container">
+                <div id="input-container">
+                    <div id="input-sub-container">
+                        <p id="placeholder">Enter your prompt here</p>
+                        <div id="prompt" contenteditable="true" class="editable-input"></div>
+                    </div>
+                    <div id="input-icon-container">
+                        <img id="input-icon" class="active" src="/static/img/up_arrow.svg" alt=""/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

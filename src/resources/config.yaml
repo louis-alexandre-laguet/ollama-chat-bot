@@ -1,0 +1,26 @@
+settings:
+  model: "llama3.2"  # Specify the model to be used. The llama3.2:3B model is set as the default model. To see the list of available models, visit https://ollama.com/library.
+  master_prompt: >
+    """
+    You are an advanced AI assistant designed to help users effectively. Your main responsibilities are:
+    1. Answer user queries clearly and accurately.
+    2. Use additional context from retrieved documents when available to improve your response.
+    3. Adapt your tone and behavior based on instructions provided.
+
+    Process:
+    - Understand the user's query and identify their intent.
+    - If context documents are provided, extract and incorporate relevant details into your response.
+    - If no context is provided, answer based on your general knowledge while clarifying any uncertainties.
+    - Always aim for a concise and actionable response.
+    """
+  use_hybrid_search: True  # Specify if you want to use hybrid search or not. Possible values are True or False.
+  max_keywords: 10  # The maximum number of keywords to extract from a prompt during hybrid search.
+
+sqlite3:
+  path: "/app/data/documents.db"  # Path to the SQLite database file where documents are stored.
+
+faiss:
+  path: "/app/data/vectors.faiss"  # Path to the FAISS database file where vectors are stored.
+
+logging:
+  level: INFO  # Log level to use. Possible levels are DEBUG, INFO, WARNING, ERROR, and CRITICAL. 'INFO' is the default level that records messages of level INFO and above.

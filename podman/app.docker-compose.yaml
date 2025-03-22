@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: podman/app.dockerfile
+    image: localhost/app-image:latest
+    command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+    container_name: app-container
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../src:/app/src
+    networks:
+      - app-network
+    environment:
+      - OLLAMA_HOST=ollama-container
+
+networks:
+  app-network:
+    external: false
+    driver: bridge
+    name: app-network

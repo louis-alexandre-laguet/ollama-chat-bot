@@ -1,0 +1,21 @@
+:root {
+  --background-color: #f7f7f7;
+  --text-color: #000000;
+  --primary-color: #bbbbbb;
+  --secondary-color: #eaeaea;
+  --user-message-bg: #a6a6a6;
+  --bot-message-bg: #e0e0e0;
+  --svg-color: 0;
+}
+
+body.dark-theme {
+  --background-color: #181818;
+  --text-color: #e0e0e0;
+  --primary-color: #444444;
+  --secondary-color: #303030;
+  --user-message-bg: #505050;
+  --bot-message-bg: #424242;
+  --svg-color: 1;
+}
+
+/*# sourceMappingURL=variables.css.map */
