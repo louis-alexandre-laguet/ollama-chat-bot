@@ -53,13 +53,13 @@ class ResponseGenerator:
         self.logger.debug(f"System prompt set to: {self.system_prompt}")
 
     
-    async def generate_response(self, prompt, num_ctx, temperature, repeat_last_n, repeat_penalty):
+    async def _generate_response_internal(self, full_prompt, num_ctx, temperature, repeat_last_n, repeat_penalty):
         """
-        Generate a response asynchronously based on a given prompt.
+        Internal method to generate a response from a fully constructed prompt.
         Sends a request to an external API for text generation using a specified model and streams the response back.
 
         Args:
-            prompt (str): The input prompt to generate a response for.
+            full_prompt (str): The complete prompt ready to be sent to the model.
             num_ctx (int): Sets the size of the context window used to generate the next token.
             temperature (float): Adjusts the creativity of the model's responses. Higher values lead to more creative outputs.
             repeat_last_n (int): Sets how far back the model looks to prevent repetition.
@@ -68,19 +68,6 @@ class ResponseGenerator:
         Yields:
             str: Chunks of the generated response.
         """
-        full_prompt = f"""
-{self.master_prompt}
-
-System Instructions:
-{self.system_prompt or 'No specific system instructions provided.'}
-
-User Question:
-{prompt}
-
-Context Documents:
-No relevant documents provided.
-"""
-
         url = f"http://{os.getenv('OLLAMA_HOST')}:11434/api/generate"
         payload = {
             "model": self.model,
@@ -116,10 +103,42 @@ No relevant documents provided.
                 yield "An error occurred regarding the Ollama container."
 
     
+    async def generate_response(self, prompt, num_ctx, temperature, repeat_last_n, repeat_penalty):
+        """
+        Generate a response asynchronously based on a given prompt without document retrieval.
+        Constructs a full prompt and delegates to the internal generation method.
+
+        Args:
+            prompt (str): The input prompt to generate a response for.
+            num_ctx (int): Sets the size of the context window used to generate the next token.
+            temperature (float): Adjusts the creativity of the model's responses. Higher values lead to more creative outputs.
+            repeat_last_n (int): Sets how far back the model looks to prevent repetition.
+            repeat_penalty (float): Controls the penalty for repetitions. A higher value penalizes repetitions more strongly.
+
+        Yields:
+            str: Chunks of the generated response.
+        """
+        full_prompt = f"""
+{self.master_prompt}
+
+System Instructions:
+{self.system_prompt or 'No specific system instructions provided.'}
+
+User Question:
+{prompt}
+
+Context Documents:
+No relevant documents provided.
+"""
+
+        async for chunk in self._generate_response_internal(full_prompt, num_ctx, temperature, repeat_last_n, repeat_penalty):
+            yield chunk
+
+    
     async def generate_response_with_retriever(self, prompt, top_n, num_ctx, temperature, repeat_last_n, repeat_penalty):
         """
         Generate a response using retrieved documents to provide additional context.
-        Retrieves a specified number of relevant documents based on the input prompt, 
+        Retrieves a specified number of relevant documents based on the input prompt,
         augments the prompt with this context, and then generates a response using the augmented prompt.
 
         Args:
@@ -143,7 +162,7 @@ No relevant documents provided.
             documents = ["No relevant documents found."]
 
         # Augment the prompt with retrieved documents
-        augmented_prompt = f"""
+        full_prompt = f"""
 {self.master_prompt}
 
 System Instructions:
@@ -156,5 +175,5 @@ User Question:
 {prompt}
 """
 
-        async for chunk in self.generate_response(augmented_prompt, num_ctx, temperature, repeat_last_n, repeat_penalty):
+        async for chunk in self._generate_response_internal(full_prompt, num_ctx, temperature, repeat_last_n, repeat_penalty):
             yield chunk

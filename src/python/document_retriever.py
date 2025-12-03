@@ -22,22 +22,21 @@ class DocumentRetriever:
 
     def _initialize_nltk_resources(self):
         """
-        Initialize NLTK resources such as stopwords and POS tagging.
-        This method checks if the resources are already downloaded to avoid redundant downloads.
+        Initialize NLTK resources such as stopwords.
+        Resources are pre-downloaded in the Docker image, but we verify they exist.
         """
         try:
-            # Check if required resources are already downloaded
+            # Verify required resources are available
             nltk.data.find('corpora/stopwords')
             nltk.data.find('tokenizers/punkt_tab')
             nltk.data.find('taggers/averaged_perceptron_tagger_eng')
-        except LookupError:
-            # If resources are not found, download them
-            self.logger.info("Downloading necessary NLTK resources...")
-            nltk.download('stopwords')
-            nltk.download('punkt_tab')
-            nltk.download('averaged_perceptron_tagger_eng')
-
-        self.stop_words = set(stopwords.words('english')).union(set(stopwords.words('french')))
+            
+            self.logger.info("Loading NLTK stopwords...")
+            self.stop_words = set(stopwords.words('english')).union(set(stopwords.words('french')))
+            self.logger.info("NLTK resources loaded successfully.")
+        except LookupError as e:
+            self.logger.error(f"NLTK resources not found: {e}. Please ensure they are downloaded in the Docker image.")
+            raise
 
 
     def search_in_index(self, prompt_vector, top_n):

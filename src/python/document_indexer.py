@@ -11,7 +11,7 @@ class DocumentIndexer:
         self.logger = logger
         self.database_manager = database_manager
         self.text_extractor = text_extractor
-        self.text_tectorizer = text_vectorizer
+        self.text_vectorizer = text_vectorizer
 
 
     def index_documents(self, folder_path):
@@ -46,7 +46,7 @@ class DocumentIndexer:
                     continue
 
                 chunks = self.chunk_text(text)
-                vectors = self.text_tectorizer.vectorize_chunks_with_context(chunks, window=1)
+                vectors = self.text_vectorizer.vectorize_chunks_with_context(chunks, window=1)
 
                 for chunk, vector in zip(chunks, vectors):
                     try:

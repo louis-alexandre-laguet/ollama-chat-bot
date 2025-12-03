@@ -20,7 +20,7 @@ REM Handle different commands based on the parameter
 if "%1" == "start" (
     REM Start services defined in the Docker Compose file
     echo [ Starting services ]
-    podman-compose -f %COMPOSE_FILE% up -d
+    podman compose -f %COMPOSE_FILE% up -d
 
     REM Check for a model parameter
     if "%2" == "" (
@@ -40,16 +40,16 @@ if "%1" == "start" (
 ) else if "%1" == "restart" (
     REM Restart services by stopping and then starting them again
     echo [ Restarting services ]
-    podman-compose -f %COMPOSE_FILE% down
-    podman-compose -f %COMPOSE_FILE% up -d
+    podman compose -f %COMPOSE_FILE% down
+    podman compose -f %COMPOSE_FILE% up -d
 ) else if "%1" == "stop" (
     REM Stop all services defined in the Docker Compose file
     echo [ Stopping services ]
-    podman-compose -f %COMPOSE_FILE% down
+    podman compose -f %COMPOSE_FILE% down
 ) else if "%1" == "remove" (
     REM Stop all services and remove associated volumes
     echo [ Removing services and volumes ]
-    podman-compose -f %COMPOSE_FILE% down -v
+    podman compose -f %COMPOSE_FILE% down -v
 ) else (
     REM Handle invalid parameters
     echo [ Error ] Invalid parameter. "Usage: %0 [start|restart|stop|remove] [model_name]"

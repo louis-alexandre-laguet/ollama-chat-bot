@@ -19,7 +19,7 @@ case "$1" in
     start)
         # Start services defined in the Docker Compose file
         echo "[ Starting services ]"
-        podman-compose -f "$COMPOSE_FILE" up -d
+        podman compose -f "$COMPOSE_FILE" up -d
 
         # Continuously display the logs of the app container
         echo [ Displaying logs ]
@@ -28,8 +28,8 @@ case "$1" in
     restart)
         # Restart services by stopping and then starting them again
         echo "[ Restarting services ]"
-        podman-compose -f "$COMPOSE_FILE" down
-        podman-compose -f "$COMPOSE_FILE" up -d
+        podman compose -f "$COMPOSE_FILE" down
+        podman compose -f "$COMPOSE_FILE" up -d
 
         # Continuously display the logs of the app container
         echo [ Displaying logs ]
@@ -38,12 +38,12 @@ case "$1" in
     stop)
         # Stop all services defined in the Docker Compose file
         echo "[ Stopping services ]"
-        podman-compose -f "$COMPOSE_FILE" down
+        podman compose -f "$COMPOSE_FILE" down
         ;;
     remove)
         # Stop all services
         echo "[ Removing services ]"
-        podman-compose -f "$COMPOSE_FILE" down
+        podman compose -f "$COMPOSE_FILE" down
         
         # Remove previously built Docker image
         echo "[ Removing Docker images ]"
@@ -52,7 +52,7 @@ case "$1" in
     reset)
         # Stop all services
         echo "[ Removing services ]"
-        podman-compose -f "$COMPOSE_FILE" down
+        podman compose -f "$COMPOSE_FILE" down
         
         # Remove previously built Docker image
         echo "[ Removing Docker images ]"
@@ -60,7 +60,7 @@ case "$1" in
         
         # Start services defined in the Docker Compose file
         echo "[ Starting services ]"
-        podman-compose -f "$COMPOSE_FILE" up -d
+        podman compose -f "$COMPOSE_FILE" up -d
 
         # Continuously display the logs of the app container
         echo [ Displaying logs ]

@@ -5,7 +5,7 @@
 1. [Project Overview](#project-overview)
 2. [Sequence Diagram](#sequence-diagram)
 3. [Prerequisites](#prerequisites)
-4. [Installing Podman and Podman-Compose](#installing-podman-and-podman-compose)
+4. [Installing Podman](#installing-podman)
 5. [Configuration](#configuration)
 6. [Run the Assistant](#run-the-assistant)
 7. [Features](#features)
@@ -24,12 +24,17 @@ The Ollama Chatbot is an **AI-based chatbot** that utilizes the `llama3.2:3B` mo
 
 ## Prerequisites
 
-| Package | Version |
-| --- | --- |
-| podman | 5.1.2 or greater |
-| podman-compose | 1.2.0 or greater |
+This project requires **Podman 5.0 or greater** with the integrated **compose plugin**.
 
-## Installing Podman and Podman-Compose
+| Package | Version | Notes |
+| --- | --- | --- |
+| Podman | 5.1.2 or greater | Includes `podman compose` command |
+
+**Important Notes:**
+- Podman 5.0+ includes the compose functionality natively.
+- Ensure the Podman machine is started before running the scripts (`podman machine start`).
+
+## Installing Podman
 
 ### Install Podman
 
@@ -69,19 +74,7 @@ The Ollama Chatbot is an **AI-based chatbot** that utilizes the `llama3.2:3B` mo
 - Download the installer from the official [Podman website](https://podman-desktop.io/docs/installation/windows-install).
 - Follow the installation instructions provided for Windows.
 
-### Install Podman-Compose
-
-Ensure you have Python installed on your system.
-
-- Install Podman-Compose with pip:
-    ```bash
-    pip install podman-compose
-    ```
-
-- Verify the installation:
-    ```bash
-    podman-compose --version
-    ```
+**Note:** Podman 5.0+ includes the compose plugin by default. No separate installation needed.
 
 ## Configuration
 
@@ -164,3 +157,22 @@ These additional mechanisms enhance the quality of document retrieval and ensure
 ## Licenses
 
 The Ollama Chatbot project uses several third-party Python libraries, each distributed under its respective license. The complete list of dependencies and their licenses is provided in [LICENSES.md](LICENSES.md).
+
+### Key Points:
+- This project is developed under open-source guidelines and complies with the licenses of all dependencies.
+- Any questions regarding the usage or distribution of these dependencies can be directed to [Louis-Alexandre Laguet](https://w3.ibm.com/#/people/109542706).
+
+Please consult the [LICENSES.md](LICENSES.md) file for more details.
+
+## Contributing
+
+Contributions to the Ollama Chatbot project are welcomed.
+
+To contribute:
+
+1. **Open an Issue:** Report bugs or suggest features by creating a new issue in the [Issues](https://github.ibm.com/Louis-Alexandre-Laguet/ollama-chat-bot/issues) section.
+2. **Submit a Pull Request:** Fork the repository, make your changes, and submit a pull request for review.
+
+## Contact
+
+For any questions or support, please reach out to [Louis-Alexandre Laguet](https://w3.ibm.com/#/people/109542706).

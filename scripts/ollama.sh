@@ -21,7 +21,7 @@ case "$1" in
     start)
         # Start services defined in the Docker Compose file
         echo "[ Starting services ]"
-        podman-compose -f "$COMPOSE_FILE" up -d
+        podman compose -f "$COMPOSE_FILE" up -d
 
         # Check if a model name is provided
         if [ -z "$2" ]; then
@@ -46,18 +46,18 @@ case "$1" in
     restart)
         # Restart services by stopping and then starting them again
         echo "[ Restarting services ]"
-        podman-compose -f "$COMPOSE_FILE" down
-        podman-compose -f "$COMPOSE_FILE" up -d
+        podman compose -f "$COMPOSE_FILE" down
+        podman compose -f "$COMPOSE_FILE" up -d
         ;;
     stop)
         # Stop all services defined in the Docker Compose file
         echo "[ Stopping services ]"
-        podman-compose -f "$COMPOSE_FILE" down
+        podman compose -f "$COMPOSE_FILE" down
         ;;
     remove)
         # Stop all services and remove associated volumes
         echo "[ Removing services and volumes ]"
-        podman-compose -f "$COMPOSE_FILE" down -v
+        podman compose -f "$COMPOSE_FILE" down -v
         ;;
     *)
         # Handle invalid commands

@@ -6,8 +6,11 @@ class TextVectorizer:
     A class responsible for converting text into vector representations using a pre-trained SentenceTransformer model.
     """
 
-    def __init__(self, logger=None, model_path='/app/models/all-MiniLM-L6-v2'):
+    def __init__(self, logger=None, model_path=None):
         self.logger = logger
+        
+        if model_path is None:
+            raise ValueError("model_path must be provided. Please configure 'vectorizer_model_path' in config.yaml")
 
         self.logger.info(f"Loading pre-trained SentenceTransformer model from {model_path}")
         try:

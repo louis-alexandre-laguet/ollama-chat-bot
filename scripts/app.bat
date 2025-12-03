@@ -19,7 +19,7 @@ REM Handle different commands based on the provided parameter
 if "%1"=="start" (
     REM Start services defined in the Docker Compose file
     echo [ Starting services ]
-    podman-compose -f %COMPOSE_FILE% up -d
+    podman compose -f %COMPOSE_FILE% up -d
 
     REM Continuously display the logs of the app container
     echo [ Displaying logs ]
@@ -28,8 +28,8 @@ if "%1"=="start" (
 ) else if "%1"=="restart" (
     REM Restart services by stopping and then starting them again
     echo [ Restarting services ]
-    podman-compose -f %COMPOSE_FILE% down
-    podman-compose -f %COMPOSE_FILE% up -d
+    podman compose -f %COMPOSE_FILE% down
+    podman compose -f %COMPOSE_FILE% up -d
 
     REM Continuously display the logs of the app container
     echo [ Displaying logs ]
@@ -38,12 +38,12 @@ if "%1"=="start" (
 ) else if "%1"=="stop" (
     REM Stop all services defined in the Docker Compose file
     echo [ Stopping services ]
-    podman-compose -f %COMPOSE_FILE% down
+    podman compose -f %COMPOSE_FILE% down
 
 ) else if "%1"=="remove" (
     REM Stop all services
     echo [ Removing services ]
-    podman-compose -f %COMPOSE_FILE% down
+    podman compose -f %COMPOSE_FILE% down
 
     REM Remove previously built Docker image
     echo [ Removing Docker images ]
@@ -52,7 +52,7 @@ if "%1"=="start" (
 ) else if "%1"=="reset" (
     REM Stop all services
     echo [ Removing services ]
-    podman-compose -f %COMPOSE_FILE% down
+    podman compose -f %COMPOSE_FILE% down
 
     REM Remove previously built Docker image
     echo [ Removing Docker images ]
@@ -60,7 +60,7 @@ if "%1"=="start" (
 
     REM Start services defined in the Docker Compose file
     echo [ Starting services ]
-    podman-compose -f %COMPOSE_FILE% up -d
+    podman compose -f %COMPOSE_FILE% up -d
 
     REM Continuously display the logs of the app container
     echo [ Displaying logs ]

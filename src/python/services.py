@@ -1,4 +1,5 @@
 import os
+import asyncio
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -47,7 +48,8 @@ class Services:
 
         self.logger.info("Initializing text vectorizer.")
         self.text_vectorizer = TextVectorizer(
-            logger=self.logger
+            logger=self.logger,
+            model_path=self.config['settings']['vectorizer_model_path']
         )
 
         self.logger.info("Initializing database manager.")
@@ -94,6 +96,7 @@ class Services:
         self.rag_enabled = False
 
         self.generating_response = False
+        self._response_lock = asyncio.Lock()
 
     def get_app(self):
         """
@@ -175,19 +178,32 @@ class Services:
         """
         self.rag_enabled = value
     
-    def is_generating_response(self):
+    async def is_generating_response(self):
         """
         Returns the current state of the response generation flag.
         This flag determines whether a response is being generated or not.
+        Thread-safe using asyncio.Lock.
         """
-        return self.generating_response
+        async with self._response_lock:
+            return self.generating_response
 
-    def set_generating_response(self, value: bool):
+    async def set_generating_response(self, value: bool):
         """
         Sets the current state of the generation flag to the specified value.
         This flag determines whether a response is being generated or not.
+        Thread-safe using asyncio.Lock.
         
         Args:
         - value: Boolean value to set if a response is being generated or not.
         """
-        self.generating_response = value
+        async with self._response_lock:
+            self.generating_response = value
+
+    def get_response_lock(self):
+        """
+        Returns the asyncio.Lock used for thread-safe access to generating_response.
+        
+        Returns:
+            asyncio.Lock: The lock object.
+        """
+        return self._response_lock

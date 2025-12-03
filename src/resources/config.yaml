@@ -1,5 +1,6 @@
 settings:
   model: "llama3.2"  # Specify the model to be used. The llama3.2:3B model is set as the default model. To see the list of available models, visit https://ollama.com/library.
+  vectorizer_model_path: "/app/models/all-MiniLM-L6-v2"  # Path to the SentenceTransformer model for text vectorization.
   master_prompt: >
     """
     You are an advanced AI assistant designed to help users effectively. Your main responsibilities are:
